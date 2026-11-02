@@ -1,0 +1,63 @@
+name: Bug report
+description: Something is broken or behaves differently from the README.
+title: "[bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting. Please trim private conversation content before pasting logs.
+  - type: input
+    id: dsh-version
+    attributes:
+      label: DSH Desktop version
+      description: For example 0.2.1-rc.2
+      placeholder: "0.2.1-rc.2"
+    validations:
+      required: true
+  - type: input
+    id: os
+    attributes:
+      label: Operating system
+      placeholder: "Windows 11 23H2 / macOS 14 / Ubuntu 24.04"
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: What did you select, what did you ask, and what happened?
+      placeholder: |
+        1. Open a conversation
+        2. Select "..." and right-click
+        3. Choose "在侧边聊天中提问"
+        4. ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior / error text
+      description: Include toast text such as `invalid-body` and whether a full DSH restart changes anything.
+    validations:
+      required: true
+  - type: textarea
+    id: diagnostics
+    attributes:
+      label: Additional context
+      description: Optional screenshots, redacted logs, installed plugins.
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checklist
+      options:
+        - label: I tried a full quit/relaunch of DSH Desktop (not just Ctrl+R).
+          required: true
+        - label: I removed or trimmed private conversation content from what I pasted.
+          required: true

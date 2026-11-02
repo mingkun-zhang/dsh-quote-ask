@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Quote Ask",
+    "description": "Select text in the main conversation, right-click, and either attach it to the next main-chat prompt or ask in a temporary side conversation. Quoted context is model-only; side-chat artifacts are deleted on close. Desktop only."
+  }
+}

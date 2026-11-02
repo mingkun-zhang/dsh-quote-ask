@@ -1,0 +1,70 @@
+{
+  "name": "dsh-quote-ask",
+  "version": "0.7.0",
+  "description": "Quote Ask (引问) for DeepSeek Harness Desktop: select text in the main conversation, right-click, and either attach it to the next main-chat prompt or ask in a temporary side conversation. Side-chat artifacts are deleted on close.",
+  "license": "MIT",
+  "author": "dsh-quote-ask contributors",
+  "homepage": "https://github.com/stilla-maris/dsh-quote-ask#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/stilla-maris/dsh-quote-ask.git"
+  },
+  "bugs": {
+    "url": "https://github.com/stilla-maris/dsh-quote-ask/issues"
+  },
+  "keywords": [
+    "dsh",
+    "deepseek-harness",
+    "dsh-plugin",
+    "quote",
+    "ask",
+    "side-chat",
+    "sidebar",
+    "conversation",
+    "electron"
+  ],
+  "type": "module",
+  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./client": "./lib/client/index.js",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.svg",
+    "./cordis.patch.yml": "./cordis.patch.yml",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib/index.js",
+    "lib/client/index.js",
+    "cordis.patch.yml",
+    "locale/*.json",
+    "icon.svg",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "test": "node test/verify.mjs",
+    "check": "node scripts/check.mjs"
+  },
+  "engines": {
+    "dsh": ">=0.2.1-rc.2 <0.3.0"
+  },
+  "dsh": {
+    "manifestVersion": 1,
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "inject": [
+        "@deepseek-ai/dsh-client-ui-layout",
+        "@deepseek-ai/dsh-client-ui-sidebar-right",
+        "@deepseek-ai/dsh-client-ui-conversation",
+        "@deepseek-ai/dsh-client-ui-session",
+        "@deepseek-ai/dsh-api-session-controller",
+        "@deepseek-ai/dsh-client-resources",
+        "@deepseek-ai/dsh-api-remotes"
+      ]
+    }
+  }
+}

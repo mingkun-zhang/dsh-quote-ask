@@ -1,0 +1,39 @@
+name: Feature request
+description: Suggest an improvement or a new capability.
+title: "[feature] "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please describe the user problem first, then the proposed behavior.
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem are you trying to solve?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+  - type: input
+    id: version
+    attributes:
+      label: DSH version / OS
+      placeholder: "0.2.1-rc.2 / Windows 11"
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checklist
+      options:
+        - label: I read the README and the known limitations section.
+          required: true
+        - label: This request is about the side chat, not a general DSH feature.
+          required: true

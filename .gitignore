@@ -1,0 +1,26 @@
+# Node / package manager
+node_modules/
+.pnpm-store/
+npm-debug.log*
+pnpm-debug.log*
+yarn-error.log*
+
+# Build / release artifacts
+dist/
+release/
+*.zip
+*.tgz
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+*.swp
+*~
+
+# Local test / debug output
+*.log
+coverage/
+.tmp/

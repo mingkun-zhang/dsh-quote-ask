@@ -1,0 +1,12 @@
+# dsh-quote-ask — bundle patch layer.
+#
+# This is the only row the plugin inserts. It is disabled unless the running
+# profile is the Desktop application's own profile, so a Web profile that ever
+# ends up with the bundle installed mounts neither the Host row nor the client
+# module. The expression is the same one the official web-app bundle uses for
+# its Desktop-only rows (packages/bundle/web-app/cordis.patch.yml).
+
+- insert:
+    - id: dsh-quote-ask
+      name: 'dsh-quote-ask'
+      disabled: !!js "ctx.get('profileContext')?.name !== 'desktop'"
