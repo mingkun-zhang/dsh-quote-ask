@@ -100,16 +100,16 @@ git push -u origin main
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\scripts\package-windows.ps1
-git tag -a v0.7.0 -m "dsh-quote-ask v0.7.0"
-git push origin v0.7.0
+git tag -a v1.0.0 -m "dsh-quote-ask v1.0.0"
+git push origin v1.0.0
 ```
 
 在 GitHub 仓库页面 **Releases → Draft a new release**：
 
-- Choose a tag: `v0.7.0`（已推送）
-- Release title: `v0.7.0 — 首个公开版本`
-- 描述：从 `CHANGELOG.md` 复制 0.7.0 段落；
-- 上传 `dist/dsh-quote-ask-0.7.0.zip` 作为附件；
+- Choose a tag: `v1.0.0`（已推送）
+- Release title: `v1.0.0 — 首个公开版本`
+- 描述：从 `CHANGELOG.md` 复制 1.0.0 段落；
+- 上传 `dist/dsh-quote-ask-1.0.0.zip` 作为附件；
 - Publish release。
 
 > Release ZIP 的解压目录包含 `scripts/install-windows.ps1`，用户解压后可直接安装。

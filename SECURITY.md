@@ -28,8 +28,8 @@ before reporting.
 
 | Version | Supported |
 |---|---|
-| 0.7.x | ✅ |
-| < 0.7 | ❌ |
+| 1.0.x | ✅ |
+| < 1.0 | ❌ |
 
 ## Design boundaries
 

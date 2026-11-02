@@ -1,6 +1,6 @@
 {
   "name": "dsh-quote-ask",
-  "version": "0.7.0",
+  "version": "1.0.0",
   "description": "Quote Ask (引问) for DeepSeek Harness Desktop: select text in the main conversation, right-click, and either attach it to the next main-chat prompt or ask in a temporary side conversation. Side-chat artifacts are deleted on close.",
   "license": "MIT",
   "author": "dsh-quote-ask contributors",

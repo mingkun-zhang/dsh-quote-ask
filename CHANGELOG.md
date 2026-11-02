@@ -3,7 +3,11 @@
 All notable changes to this project are documented here. The project follows
 [Semantic Versioning](https://semver.org/) while DSH itself is pre-1.0.
 
-## [0.7.0] — 2026-11-02
+## [1.0.0] — 2026-11-02
+
+### Added
+
+- First public release of **Quote Ask / 引问**.
 
 ### Changed
 
