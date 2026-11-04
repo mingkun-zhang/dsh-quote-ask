@@ -3,6 +3,15 @@
 All notable changes to this project are documented here. The project follows
 [Semantic Versioning](https://semver.org/) while DSH itself is pre-1.0.
 
+## [1.1.2] — 2026-11-04
+
+### Added
+
+- **Copy in the custom selection menu**: right-clicking a transcript selection
+  now offers “复制选中文字” before the quote actions. The plugin suppresses the
+  native context menu, so without this item the browser's Copy entry was
+  unavailable on that selection.
+
 ## [1.1.1] — 2026-11-04
 
 ### Changed

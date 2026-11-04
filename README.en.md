@@ -21,6 +21,9 @@ and exactly where your selection came from.
 
 - **Selection → side chat**: select text in the main conversation, right-click,
   and open a side chat.
+- **Copy is still available**: because the plugin replaces the transcript
+  selection menu, it includes “复制选中文字” (Copy selection) before the quote
+  actions.
 - **Add to conversation**: the same context menu attaches the selection to the
   next turn of the main conversation. The main composer shows the same quote
   chip, accepts multiple attachments, opens the quote panel on hover/click, and
