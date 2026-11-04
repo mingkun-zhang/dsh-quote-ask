@@ -3,6 +3,33 @@
 All notable changes to this project are documented here. The project follows
 [Semantic Versioning](https://semver.org/) while DSH itself is pre-1.0.
 
+## [1.1.1] — 2026-11-04
+
+### Changed
+
+- Highlight colour changed from blue to bright yellow (light theme 55%,
+  dark theme 32% opacity) so it reads like a highlighter marker; the numbered
+  badge stays on the plugin accent colour.
+
+## [1.1.0] — 2026-11-04
+
+### Added
+
+- **Source-conversation highlight + number**: every live quote is painted on the
+  exact excerpt in its main conversation and carries the same number as its
+  chip-panel entry. Removing the quote, consuming the turn, or closing the side
+  chat removes the highlight and badge.
+- The highlight uses the CSS Custom Highlight API, so the transcript DOM is
+  never mutated; ranges are re-anchored from the stored offsets, surrounding
+  text, and excerpt text when the transcript re-renders or paginates.
+- A small browser harness (`test/highlight-harness.html`) covers quote/remove,
+  transcript shifts, side-chat quotes, and numbering.
+
+### Changed
+
+- Side-chat chip panels now show the transcript-wide quote number (main
+  attachments first, then side chats) so panels and badges never disagree.
+
 ## [1.0.0] — 2026-11-02
 
 ### Added

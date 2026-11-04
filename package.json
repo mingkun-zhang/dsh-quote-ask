@@ -1,7 +1,7 @@
 {
   "name": "dsh-quote-ask",
-  "version": "1.0.0",
-  "description": "Quote Ask (引问) for DeepSeek Harness Desktop: select text in the main conversation, right-click, and either attach it to the next main-chat prompt or ask in a temporary side conversation. Side-chat artifacts are deleted on close.",
+  "version": "1.1.1",
+  "description": "Quote Ask (引问) for DeepSeek Harness Desktop: select text in the main conversation, right-click, and either attach it to the next main-chat prompt or ask in a temporary side conversation. Quoted text stays highlighted with a number in the source conversation. Side-chat artifacts are deleted on close.",
   "license": "MIT",
   "author": "dsh-quote-ask contributors",
   "homepage": "https://github.com/stilla-maris/dsh-quote-ask#readme",

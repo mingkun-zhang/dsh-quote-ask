@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>dsh-quote-ask highlight harness</title>
+<style>
+  html, body { margin: 0; height: 100%; }
+  body {
+    background: #ffffff;
+    color: #1f2328;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
+    font-size: 15px;
+    line-height: 1.75;
+  }
+  #app { width: 760px; margin: 24px auto; }
+  [data-conversation-scroll] { height: 360px; overflow-y: auto; border: 1px solid #e5e7eb; border-radius: 12px; padding: 16px; box-sizing: border-box; }
+  [data-chat-flow] { display: flex; flex-direction: column; gap: 20px; }
+  [data-chat-flow-key] { display: block; }
+  .user { align-self: flex-end; background: #eef2ff; border-radius: 14px; padding: 8px 14px; max-width: 70%; white-space: pre-wrap; }
+  .assistant p { margin: 0 0 12px; }
+  .assistant code { background: #f3f4f6; border-radius: 4px; padding: 1px 4px; }
+  #result { margin-top: 16px; padding: 12px; background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 10px; font: 12px/1.6 ui-monospace, Consolas, monospace; white-space: pre-wrap; }
+  .pass { color: #15803d; }
+  .fail { color: #b91c1c; }
+</style>
+</head>
+<body>
+<div id="app">
+  <div data-conversation-content data-conversation-session="session-main" data-conversation-region="chat">
+    <div data-conversation-scroll>
+      <div data-chat-flow>
+        <div data-chat-flow-key='["node","user-1"]' data-chat-node-key='["node","user-1"]' data-chat-turn="1" data-chat-flow-kind="user">
+          <div class="user">请解释一下这段代码里的缓存策略。</div>
+        </div>
+        <div data-chat-flow-key='["node","assistant-1"]' data-chat-node-key='["node","assistant-1"]' data-chat-turn="2" data-chat-flow-kind="assistant">
+          <div class="assistant">
+            <p>这段代码使用了一个简单的 LRU 缓存：当缓存达到容量上限时，会淘汰最久未使用的条目。它把 <code>Map</code> 的插入顺序当作使用顺序，每次读取都会把命中的键重新插入到末尾。</p>
+            <p>因此，热点数据会一直留在缓存里，而冷数据会随着时间被淘汰。需要注意并发写入时 <code>Map</code> 本身不是线程安全的。</p>
+          </div>
+        </div>
+        <div data-chat-flow-key='["node","assistant-2"]' data-chat-node-key='["node","assistant-2"]' data-chat-turn="3" data-chat-flow-kind="assistant">
+          <div class="assistant">
+            <p>补充一句：如果缓存的值很大，还应该考虑内存上限，而不只是条目数量。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="app" style="margin-top:0">
+  <div id="result">running…</div>
+</div>
+<script>
+  // Headless --dump-dom does not reliably service animation frames; the
+  // highlight scheduler only needs a frame-like callback, so use timers here.
+  window.requestAnimationFrame = function (callback) {
+    return window.setTimeout(function () { callback(Date.now()) }, 16)
+  }
+  window.cancelAnimationFrame = function (handle) { window.clearTimeout(handle) }
+  window.__DSH_SIDE_CHAT_CONTRACT_TEST__ = true
+  // Mark this as a page reload so the plugin's boot purge (which intentionally
+  // clears session-scoped quote state on a fresh DSH launch) does not wipe the
+  // fixture before the first sync.
+  window.sessionStorage.setItem('dsh-quote-ask.booted.v1', '1')
+  window.__ModuleLoader__ = {
+    load: function (definition) { window.__dshQuoteAskDefinition = definition },
+  }
+</script>
+<script src="../lib/client/index.js"></script>
+<script>
+(async function () {
+  var result = document.getElementById('result')
+  var lines = []
+  var failures = 0
+  function report(ok, message, detail) {
+    if (!ok) failures += 1
+    lines.push((ok ? 'PASS ' : 'FAIL ') + message + (detail === undefined ? '' : ' — ' + detail))
+  }
+  function sleep(ms) { return new Promise(function (resolve) { setTimeout(resolve, ms) }) }
+  function frames(n) {
+    return new Promise(function (resolve) {
+      var left = n
+      function step() {
+        left -= 1
+        if (left <= 0) resolve()
+        else requestAnimationFrame(step)
+      }
+      requestAnimationFrame(step)
+    })
+  }
+  function highlightRanges() {
+    var highlight = window.CSS && window.CSS.highlights ? window.CSS.highlights.get('dsh-quote-ask') : undefined
+    return highlight ? Array.from(highlight) : []
+  }
+  function badgeTexts() {
+    return Array.from(document.querySelectorAll('.dsh-quote-ask-badge')).map(function (node) { return node.textContent })
+  }
+  function quoteStore(items) {
+    window.localStorage.setItem('dsh-quote-ask.main-quotes.v1', JSON.stringify({ 'session-main': items }))
+  }
+  function notify() {
+    window.dispatchEvent(new CustomEvent('dsh-quote-ask:entries-changed'))
+  }
+  function textOf(selector) {
+    return (document.querySelector(selector) || {}).textContent || ''
+  }
+  function anchorRelativeTo(rootSelector, needle) {
+    var root = document.querySelector(rootSelector)
+    var text = root.textContent
+    var at = text.indexOf(needle)
+    return {
+      nodeKey: null,
+      flowKey: null,
+      flowKind: null,
+      turn: null,
+      charStart: at,
+      charEnd: at + needle.length,
+      messageLength: text.length,
+      before: text.slice(Math.max(0, at - 200), at),
+      after: text.slice(at + needle.length, at + needle.length + 200),
+      messageText: text.slice(0, 12000),
+    }
+  }
+
+  try {
+    var definition = window.__dshQuoteAskDefinition
+    report(Boolean(definition && definition.factory), 'client module registered with the loader')
+    var React = {
+      createElement: function () { return null },
+      Fragment: {},
+      useState: function (value) { return [value, function () {}] },
+      useEffect: function () {},
+      useRef: function () { return { current: null } },
+      useCallback: function (fn) { return fn },
+    }
+    var clientExports = definition.factory(function (id) {
+      if (id === 'react') return React
+      if (id === 'react-dom') return { createPortal: function () { return null } }
+      throw new Error('unexpected require ' + id)
+    })
+    var disposers = []
+    var ctx = {
+      effect: function (callback) {
+        var dispose = callback()
+        disposers.push(typeof dispose === 'function' ? dispose : function () {})
+      },
+      slots: {
+        inject: function () {},
+        register: function () { return function () {} },
+      },
+      resources: { register: function () { return function () {} } },
+      sidebarRightTabs: { register: function () { return function () {} } },
+      sidebarRight: { registerCloseHandler: function () { return function () {} }, openResource: function () {} },
+      sessions: {},
+    }
+
+    var quote = '这段代码使用了一个简单的 LRU 缓存'
+    var anchor = anchorRelativeTo('[data-chat-flow]', quote)
+    quoteStore([{ text: quote, anchor: anchor }])
+    clientExports.apply(ctx)
+    await frames(4)
+    await sleep(80)
+
+    var ranges = highlightRanges()
+    report(ranges.length === 1, 'one CSS highlight range after quoting', 'ranges=' + ranges.length)
+    report(ranges.length > 0 && normalize(ranges[0].toString()).indexOf(normalize(quote)) >= 0,
+      'highlight covers the quoted excerpt', ranges.length > 0 ? normalize(ranges[0].toString()).slice(0, 60) : 'none')
+    report(badgeTexts().join(',') === '1', 'number badge 1 rendered', badgeTexts().join(',') || 'none')
+
+    // A second quote must get number 2 and an independent range.
+    var quote2 = '热点数据会一直留在缓存里'
+    var anchor2 = anchorRelativeTo('[data-chat-flow]', quote2)
+    quoteStore([{ text: quote, anchor: anchor }, { text: quote2, anchor: anchor2 }])
+    notify()
+    await frames(4)
+    await sleep(80)
+    var ranges2 = highlightRanges()
+    report(ranges2.length === 2, 'two CSS highlight ranges after the second quote', 'ranges=' + ranges2.length)
+    report(badgeTexts().join(',') === '1,2', 'badges 1 and 2 rendered', badgeTexts().join(',') || 'none')
+
+    // Shift the transcript text before the quote: an exact-offset anchor must
+    // fall back to its before/after window and keep highlighting.
+    var firstParagraph = document.querySelector('[data-chat-node-key=\'["node","assistant-1"]\'] p')
+    firstParagraph.textContent = '开场白。' + firstParagraph.textContent
+    firstParagraph.appendChild(document.createTextNode('（补充）'))
+    await frames(4)
+    await sleep(120)
+    var ranges3 = highlightRanges()
+    report(ranges3.length === 2, 'highlight survives a transcript shift via before/after fallback', 'ranges=' + ranges3.length)
+
+    // Remove one quote: its highlight and badge must disappear, the other stays.
+    quoteStore([{ text: quote2, anchor: anchor2 }])
+    notify()
+    await frames(4)
+    await sleep(80)
+    var ranges4 = highlightRanges()
+    report(ranges4.length === 1, 'removing a quote removes exactly one range', 'ranges=' + ranges4.length)
+    report(badgeTexts().join(',') === '1', 'remaining quote is renumbered contiguously', badgeTexts().join(',') || 'none')
+
+    // Remove everything.
+    quoteStore([])
+    notify()
+    await frames(4)
+    await sleep(80)
+    report(highlightRanges().length === 0, 'all highlights removed when the last quote is removed', 'ranges=' + highlightRanges().length)
+    report(badgeTexts().length === 0, 'all badges removed when the last quote is removed', badgeTexts().join(',') || 'none')
+
+    // Restore the fixture text for a clean screenshot.
+    firstParagraph.textContent = firstParagraph.textContent
+      .replace(/^开场白。/, '')
+      .replace(/（补充）$/, '')
+
+    // A side-chat quote is also highlighted in the main conversation, and its
+    // number continues after the main attachments so badges stay unique.
+    var sideEntry = {
+      sideChatId: 'side-chat-1',
+      sessionId: 'session-side-1',
+      mainSessionId: 'session-main',
+      mainTitle: '缓存策略',
+      quotes: [{ text: quote2, anchor: anchor2 }],
+      createdAt: 1000,
+    }
+    quoteStore([{ text: quote, anchor: anchor }])
+    window.localStorage.setItem('dsh-quote-ask.sessions.v1', JSON.stringify({ 'session-side-1': sideEntry }))
+    notify()
+    await frames(4)
+    await sleep(100)
+    var ranges5 = highlightRanges()
+    report(ranges5.length === 2, 'a side-chat quote also highlights in the main conversation', 'ranges=' + ranges5.length)
+    report(badgeTexts().join(',') === '1,2', 'side-chat badge continues the numbering', badgeTexts().join(',') || 'none')
+    var exported = window.__dshSideChatTest || {}
+    report(typeof exported.sideQuoteNumberOffset === 'function'
+      && exported.sideQuoteNumberOffset(sideEntry) === 1,
+      'side chip panel offset follows main attachments',
+      typeof exported.sideQuoteNumberOffset === 'function' ? String(exported.sideQuoteNumberOffset(sideEntry)) : 'missing')
+    var activeList = typeof exported.activeQuoteListForMain === 'function'
+      ? exported.activeQuoteListForMain('session-main')
+      : []
+    report(activeList.map(function (item) { return item.number }).join(',') === '1,2',
+      'active quote list numbers main and side quotes together',
+      activeList.map(function (item) { return item.number }).join(','))
+
+    // Closing the side chat removes its highlight, leaving only the main quote.
+    window.localStorage.removeItem('dsh-quote-ask.sessions.v1')
+    notify()
+    await frames(4)
+    await sleep(80)
+    report(highlightRanges().length === 1, 'closing a side chat removes its highlight', 'ranges=' + highlightRanges().length)
+    report(badgeTexts().join(',') === '1', 'main quote keeps badge 1', badgeTexts().join(',') || 'none')
+
+    // Restore a single quote for the screenshot.
+    quoteStore([{ text: quote, anchor: anchor }])
+    notify()
+    await frames(4)
+    await sleep(100)
+
+    lines.push('')
+    lines.push(failures === 0 ? 'ALL HARNESS CHECKS PASSED' : failures + ' HARNESS CHECK(S) FAILED')
+    result.textContent = lines.join('\n')
+    result.className = failures === 0 ? 'pass' : 'fail'
+    document.title = failures === 0 ? 'PASS' : 'FAIL'
+    if (window.location.search.indexOf('clean') >= 0) {
+      result.parentElement.style.display = 'none'
+    }
+
+    function normalize(value) {
+      return String(value == null ? '' : value).replace(/\r\n?/g, '\n').trim()
+    }
+  } catch (error) {
+    result.textContent = 'HARNESS CRASH: ' + (error && error.stack ? error.stack : String(error))
+    result.className = 'fail'
+    document.title = 'CRASH'
+  }
+})()
+</script>
+</body>
+</html>

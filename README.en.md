@@ -30,6 +30,12 @@ and exactly where your selection came from.
 - **Exact quote anchors**: DOM node key, turn, character offsets, surrounding
   text, and full message text are captured, so repeated words are resolved to
   the exact occurrence.
+- **Highlight + number in the source conversation**: while a quote is live, the
+  quoted text stays highlighted and carries the same number as its chip-panel
+  entry. Deleting the quote, consuming the turn, or closing the side chat
+  removes the highlight and badge. The highlight is painted with the browser's
+  CSS Custom Highlight API, so the transcript DOM is never mutated and React
+  re-renders cannot wipe it.
 - **Model-only main context**: user/assistant text messages, tool-result
   summaries, and quotes are written to `context.md` and injected through a
   scoped system-prompt section. The UI never displays them.
@@ -109,6 +115,15 @@ full DSH quit it also removes every side chat still open. The main conversation
 is never modified. See
 [docs/cleanup-and-compatibility.md](docs/cleanup-and-compatibility.md) for the
 exact list and crash-recovery behavior.
+
+## Known limitations
+
+- Highlight uses the CSS Custom Highlight API (Chromium 105+). Rows that are
+  virtualized out of the DOM temporarily lose their highlight and badge; they
+  come back when scrolling returns the row.
+- Numbers are contiguous over the current quote order. Removing an earlier
+  quote renumbers the remaining ones; the chip panel always shows the same
+  numbers as the transcript.
 
 ## Development
 

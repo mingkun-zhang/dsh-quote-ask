@@ -58,6 +58,15 @@ DSH 插件可以同时注册宿主（Node）与浏览器（Web）代码：
 7. **关闭**
    浏览器先取消生成，等待 800ms 持久化，再 `POST /cleanup`；宿主删除产物并留下 journal 凭证；客户端删除 localStorage entry/draft，并在 1.5s/6s 后补删晚写草稿。
 
+## 原文高亮与编号
+
+引用生效后，浏览器半区会在主对话转录里为每条引用画一层高亮，并在选区末尾贴一个编号牌。实现要点：
+
+- 高亮走浏览器原生 **CSS Custom Highlight API**（`CSS.highlights` + `::highlight(dsh-quote-ask)`），转录 DOM 一个字节都不改；React 流式重渲染不会把高亮冲掉，也无需 `MutationObserver` 重新插 `<mark>`。
+- Range 不持久保存。每次结构变化都从引用条目里的 anchor 重新解析：先按 `charStart/charEnd` 精确匹配候选 `[data-chat-flow]`，失败后退回 `before/after` 窗口，最后退回引用文字本身。这样翻页、流式输出导致偏移漂移时仍能锚回原处。
+- 编号牌放在 `body` 下的固定浮层（`pointer-events:none`），按 Range 末尾矩形的视口坐标定位；滚动、缩放只重排编号牌，不重新解析 Range。
+- 编号与输入框 chip 面板共用同一套顺序：主对话「添加至对话」的引用在前，随后是各侧聊的引用；删除中间一条时编号连续顺延。
+
 ## 涉及到的 DSH 扩展点
 
 - `sidebarRightTabs.register`：右侧栏 tab 类型
@@ -81,3 +90,5 @@ DSH 插件可以同时注册宿主（Node）与浏览器（Web）代码：
 ```bash
 node test/verify.mjs
 ```
+
+高亮逻辑另有一份真实浏览器回归页 `test/highlight-harness.html`：用 Edge/Chrome headless 打开后，它会加载真实的 `lib/client/index.js`，在假转录上验证「引用→高亮+编号」「取消引用→消失」「转录文字漂移后仍能锚回」「侧聊引用也高亮」等行为，并把结果写回页面（`--dump-dom` 可读）。
