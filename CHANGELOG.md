@@ -3,6 +3,17 @@
 All notable changes to this project are documented here. The project follows
 [Semantic Versioning](https://semver.org/) while DSH itself is pre-1.0.
 
+## [1.1.3] — 2026-11-05
+
+### Fixed
+
+- **No more ghost side chats under “未分组”**: DSH can flush a side chat's
+  projection cache after the close-time cleanup. The Host now sweeps orphan
+  caches whose `identity.cwd` is `$DSH_HOME/quote-ask/<id>/workspace` and whose
+  side-chat directory is already gone, and repeats the sweep for recent caches.
+- Deleted side-chat session ids are remembered locally and their list rows stay
+  hidden until the Host sweep removes the cache, covering the disposal window.
+
 ## [1.1.2] — 2026-11-04
 
 ### Added
